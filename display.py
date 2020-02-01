@@ -1,9 +1,14 @@
 import remi.gui as gui
 from remi import start, App
+from game_logic import Board
 
-class Display(App):
+class Go(App):
+
+    board = Board()
+    player = 2
+
     def __init__(self, *args):
-        super(Display, self).__init__(*args)
+        super(Go, self).__init__(*args)
 
     def main(self):
         container = gui.Container(width=441, height=441)
@@ -14,16 +19,22 @@ class Display(App):
     def on_place_piece(self, widget, x, y):
         new_pos = self.calculate_closest_point(int(x), int(y))
 
-        self.piece = gui.Container(width=20, height=20)
-        self.piece.style['background-image'] = "url('https://i.imgur.com/IAU4S7D.png')"
-        self.piece.style['background-repeat'] = 'no-repeat'
-        self.piece.style['background-size'] = '20px 20px'
-        self.piece.style['background-color'] = 'transparent'
-        self.piece.style['position'] = 'absolute'
-        self.piece.style['left'] = str(new_pos[0]) + 'px'
-        self.piece.style['top'] = str(new_pos[1]) + 'px'
-        
-        widget.append(self.piece)
+        if not self.board.inter_occupied((new_pos[0]-4)//23, (new_pos[1]-4)//23):
+            self.board.update_board((new_pos[0]-4)//23, (new_pos[1]-4)//23, self.player)
+            self.piece = gui.Container(width=20, height=20)
+            if self.player == 1:
+                self.piece.style['background-image'] = "url('https://i.imgur.com/IAU4S7D.png')"
+            elif self.player == 2:
+                self.piece.style['background-image'] = "url('https://i.imgur.com/iW25PZP.png')"
+            self.piece.style['background-repeat'] = 'no-repeat'
+            self.piece.style['background-size'] = '20px 20px'
+            self.piece.style['background-color'] = 'transparent'
+            self.piece.style['position'] = 'absolute'
+            self.piece.style['left'] = str(new_pos[0]) + 'px'
+            self.piece.style['top'] = str(new_pos[1]) + 'px'
+
+            self.player = 3 - self.player
+            widget.append(self.piece)
 
     def calculate_closest_point(self, x, y):
         coord_x = x - 14
@@ -52,4 +63,4 @@ class Display(App):
         else:
             return [high_x+4, low_y+4]
         
-start(Display)
+start(Go)
