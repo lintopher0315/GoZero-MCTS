@@ -2,13 +2,13 @@ import remi.gui as gui
 from remi import start, App
 from game_logic import Board
 
-class Go(App):
+class BetaGo(App):
 
     board = Board()
     player = 2
 
     def __init__(self, *args):
-        super(Go, self).__init__(*args)
+        super(BetaGo, self).__init__(*args)
 
     def main(self):
         container = gui.Container(width=441, height=441)
@@ -63,4 +63,4 @@ class Go(App):
         else:
             return [high_x+4, low_y+4]
         
-start(Go)
+start(BetaGo)
