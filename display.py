@@ -16,14 +16,14 @@ class BetaGo(App):
         container.style['background-image'] = "url('https://senseis.xmp.net/diagrams/29/ad217a381dbb8bc75d8420f6aec40af5.png')"
         for i in range(19):
             for j in range(19):
-                self.piece = gui.Container(width=20, height=20)
+                self.piece = gui.Container(width=22, height=22)
                 self.piece.style['background-image'] = "none"
                 self.piece.style['background-repeat'] = 'no-repeat'
-                self.piece.style['background-size'] = '20px 20px'
+                self.piece.style['background-size'] = '22px 22px'
                 self.piece.style['background-color'] = 'transparent'
                 self.piece.style['position'] = 'absolute'
-                self.piece.style['left'] = str(4+23*j) + 'px'
-                self.piece.style['top'] = str(4+23*i) + 'px'
+                self.piece.style['left'] = str(2+23*j) + 'px'
+                self.piece.style['top'] = str(2+23*i) + 'px'
                 self.images.append(self.piece)
                 container.append(self.piece)
         container.onmousedown.do(self.on_place_piece)
@@ -32,8 +32,8 @@ class BetaGo(App):
     def on_place_piece(self, widget, x, y):
         new_pos = self.calculate_closest_point(int(x), int(y))
 
-        if not self.board.invalid_inter((new_pos[0]-4)//23, (new_pos[1]-4)//23):
-            self.board.update_board((new_pos[0]-4)//23, (new_pos[1]-4)//23, self.player)
+        if not self.board.invalid_inter((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player):
+            self.board.update_board((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player)
             for i in range(19):
                 for j in range(19):
                     if self.board.grid[i][j] == 2:
@@ -63,12 +63,12 @@ class BetaGo(App):
         man_upper_left = abs(low_x - coord_x) + abs(low_y - coord_y)
         man_upper_right = abs(high_x - coord_x) + abs(low_y - coord_y)
         if min(man_lower_left, man_lower_right, man_upper_left, man_upper_right) == man_lower_left:
-            return [low_x+4, high_y+4]
+            return [low_x+2, high_y+2]
         elif min(man_lower_left, man_lower_right, man_upper_left, man_upper_right) == man_lower_right:
-            return [high_x+4, high_y+4]
+            return [high_x+2, high_y+2]
         elif min(man_lower_left, man_lower_right, man_upper_left, man_upper_right) == man_upper_left:
-            return [low_x+4, low_y+4]
+            return [low_x+2, low_y+2]
         else:
-            return [high_x+4, low_y+4]
+            return [high_x+2, low_y+2]
         
 start(BetaGo)

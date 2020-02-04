@@ -9,25 +9,29 @@ class Board:
     def update_board(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19 and (player == 1 or player == 2):
             self.grid[y][x] = player
-            self.update_strings(x, y, player)
             
             if player == 2:
+                self.black_strings = self.update_strings(x, y, player)
+
                 for i in range(len(self.white_strings)-1, -1, -1):
-                    if self.is_string_captured(i, 3-player):
+                    if self.is_string_captured(self.white_strings[i], 3-player):
                         self.remove_string(i, 3-player)
             else:
+                self.white_strings = self.update_strings(x, y, player)
+
                 for i in range(len(self.black_strings)-1, -1, -1):
-                    if self.is_string_captured(i, 3-player):
+                    if self.is_string_captured(self.black_strings[i], 3-player):
                         self.remove_string(i, 3-player)
     
-    def invalid_inter(self, x, y):
+    def invalid_inter(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19:
-            return self.grid[y][x] != 0
+            return self.grid[y][x] != 0 or self.is_self_capture(x, y, player)
         return True 
     
     def update_strings(self, x, y, player):
         connected = []
         if player == 2:
+            black_copy = self.black_strings.copy()
             for i in range(len(self.black_strings)):
                 for j in range(len(self.black_strings[i])):
                     if (self.black_strings[i][j][0] == x and abs(self.black_strings[i][j][1] - y) == 1) or (self.black_strings[i][j][1] == y and abs(self.black_strings[i][j][0] - x) == 1):
@@ -35,10 +39,12 @@ class Board:
                         break
             connected_string = []
             for i in range(len(connected)-1, -1, -1):
-                connected_string += self.black_strings.pop(connected[i])
+                connected_string += black_copy.pop(connected[i])
             connected_string += [[x, y]]
-            self.black_strings.append(connected_string)
-        elif player == 1:
+            black_copy.append(connected_string)
+            return black_copy
+        else:
+            white_copy = self.white_strings.copy()
             for i in range(len(self.white_strings)):
                 for j in range(len(self.white_strings[i])):
                     if (self.white_strings[i][j][0] == x and abs(self.white_strings[i][j][1] - y) == 1) or (self.white_strings[i][j][1] == y and abs(self.white_strings[i][j][0] - x) == 1):
@@ -46,19 +52,15 @@ class Board:
                         break
             connected_string = []
             for i in range(len(connected)-1, -1, -1):
-                connected_string += self.white_strings.pop(connected[i])
+                connected_string += white_copy.pop(connected[i])
             connected_string += [[x, y]]
-            self.white_strings.append(connected_string)
+            white_copy.append(connected_string)
+            return white_copy
 
-    def is_string_captured(self, index, player):
+    def is_string_captured(self, string, player):
         stack = []
         visited = []
-        string_copy = None
-        if player == 2:
-            string_copy = self.black_strings[index].copy()
-        else:
-            string_copy = self.white_strings[index].copy()
-        stack.append(string_copy[0])
+        stack.append(string[0].copy())
         while len(stack) > 0:
             rem = stack.pop()
             visited.append(rem)
@@ -92,7 +94,28 @@ class Board:
             coords = self.white_strings.pop(index)
         for coord in coords:
             self.grid[coord[1]][coord[0]] = 0
-'''
-    def is_self_capure(self, x, y, player):
+
+    def is_self_capture(self, x, y, player):
         self.grid[y][x] = player
-'''
+        if player == 2:
+            black_copy = self.update_strings(x, y, player)
+            for i in range(len(self.white_strings)-1, -1, -1):
+                if self.is_string_captured(self.white_strings[i], 3-player):
+                    self.grid[y][x] = 0
+                    return False
+            for i in range(len(black_copy)-1, -1, -1):
+                if self.is_string_captured(black_copy[i], player):
+                    self.grid[y][x] = 0
+                    return True
+        else:
+            white_copy = self.update_strings(x, y, player)
+            for i in range(len(self.black_strings)-1, -1, -1):
+                if self.is_string_captured(self.black_strings[i], 3-player):
+                    self.grid[y][x] = 0
+                    return False
+            for i in range(len(white_copy)-1, -1, -1):
+                if self.is_string_captured(white_copy[i], player):
+                    self.grid[y][x] = 0
+                    return True
+        self.grid[y][x] = 0
+        return False
