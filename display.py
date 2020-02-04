@@ -6,6 +6,7 @@ class BetaGo(App):
 
     board = Board()
     player = 2
+    images = []
 
     def __init__(self, *args):
         super(BetaGo, self).__init__(*args)
@@ -13,28 +14,35 @@ class BetaGo(App):
     def main(self):
         container = gui.Container(width=441, height=441)
         container.style['background-image'] = "url('https://senseis.xmp.net/diagrams/29/ad217a381dbb8bc75d8420f6aec40af5.png')"
+        for i in range(19):
+            for j in range(19):
+                self.piece = gui.Container(width=20, height=20)
+                self.piece.style['background-image'] = "none"
+                self.piece.style['background-repeat'] = 'no-repeat'
+                self.piece.style['background-size'] = '20px 20px'
+                self.piece.style['background-color'] = 'transparent'
+                self.piece.style['position'] = 'absolute'
+                self.piece.style['left'] = str(4+23*j) + 'px'
+                self.piece.style['top'] = str(4+23*i) + 'px'
+                self.images.append(self.piece)
+                container.append(self.piece)
         container.onmousedown.do(self.on_place_piece)
         return container
     
     def on_place_piece(self, widget, x, y):
         new_pos = self.calculate_closest_point(int(x), int(y))
 
-        if not self.board.inter_occupied((new_pos[0]-4)//23, (new_pos[1]-4)//23):
+        if not self.board.invalid_inter((new_pos[0]-4)//23, (new_pos[1]-4)//23):
             self.board.update_board((new_pos[0]-4)//23, (new_pos[1]-4)//23, self.player)
-            self.piece = gui.Container(width=20, height=20)
-            if self.player == 1:
-                self.piece.style['background-image'] = "url('https://i.imgur.com/IAU4S7D.png')"
-            elif self.player == 2:
-                self.piece.style['background-image'] = "url('https://i.imgur.com/iW25PZP.png')"
-            self.piece.style['background-repeat'] = 'no-repeat'
-            self.piece.style['background-size'] = '20px 20px'
-            self.piece.style['background-color'] = 'transparent'
-            self.piece.style['position'] = 'absolute'
-            self.piece.style['left'] = str(new_pos[0]) + 'px'
-            self.piece.style['top'] = str(new_pos[1]) + 'px'
-
+            for i in range(19):
+                for j in range(19):
+                    if self.board.grid[i][j] == 2:
+                        self.images[j+i*19].style['background-image'] = "url('https://i.imgur.com/iW25PZP.png')"
+                    elif self.board.grid[i][j] == 1:
+                        self.images[j+i*19].style['background-image'] = "url('https://i.imgur.com/IAU4S7D.png')"
+                    else:
+                        self.images[j+i*19].style['background-image'] = "none"
             self.player = 3 - self.player
-            widget.append(self.piece)
 
     def calculate_closest_point(self, x, y):
         coord_x = x - 14

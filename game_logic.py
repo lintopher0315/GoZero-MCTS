@@ -10,8 +10,17 @@ class Board:
         if x >= 0 and x < 19 and y >= 0 and y < 19 and (player == 1 or player == 2):
             self.grid[y][x] = player
             self.update_strings(x, y, player)
+            
+            if player == 2:
+                for i in range(len(self.white_strings)-1, -1, -1):
+                    if self.is_string_captured(i, 3-player):
+                        self.remove_string(i, 3-player)
+            else:
+                for i in range(len(self.black_strings)-1, -1, -1):
+                    if self.is_string_captured(i, 3-player):
+                        self.remove_string(i, 3-player)
     
-    def inter_occupied(self, x, y):
+    def invalid_inter(self, x, y):
         if x >= 0 and x < 19 and y >= 0 and y < 19:
             return self.grid[y][x] != 0
         return True 
@@ -25,7 +34,7 @@ class Board:
                         connected.append(i)
                         break
             connected_string = []
-            for i in range(len(connected) - 1, -1, -1):
+            for i in range(len(connected)-1, -1, -1):
                 connected_string += self.black_strings.pop(connected[i])
             connected_string += [[x, y]]
             self.black_strings.append(connected_string)
@@ -36,7 +45,7 @@ class Board:
                         connected.append(i)
                         break
             connected_string = []
-            for i in range(len(connected) - 1, -1, -1):
+            for i in range(len(connected)-1, -1, -1):
                 connected_string += self.white_strings.pop(connected[i])
             connected_string += [[x, y]]
             self.white_strings.append(connected_string)
@@ -74,3 +83,16 @@ class Board:
                 elif self.grid[rem[1]-1][rem[0]] == player:
                     stack.append([rem[0], rem[1]-1])
         return True
+
+    def remove_string(self, index, player):
+        coords = None
+        if player == 2:
+            coords = self.black_strings.pop(index)
+        else:
+            coords = self.white_strings.pop(index)
+        for coord in coords:
+            self.grid[coord[1]][coord[0]] = 0
+'''
+    def is_self_capure(self, x, y, player):
+        self.grid[y][x] = player
+'''
