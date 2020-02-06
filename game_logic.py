@@ -1,10 +1,12 @@
 import numpy
+from collections import Counter
 
 class Board:
 
     grid = numpy.zeros((19, 19))
     black_strings = []
     white_strings = []
+    pos_history = []
 
     def update_board(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19 and (player == 1 or player == 2):
@@ -22,10 +24,14 @@ class Board:
                 for i in range(len(self.black_strings)-1, -1, -1):
                     if self.is_string_captured(self.black_strings[i], 3-player):
                         self.remove_string(i, 3-player)
+
+            self.pos_history.append([self.black_strings.copy(), self.white_strings.copy()])
+            if len(self.pos_history) > 2:
+                self.pos_history.pop(0)
     
     def invalid_inter(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19:
-            return self.grid[y][x] != 0 or self.is_self_capture(x, y, player)
+            return self.grid[y][x] != 0 or self.is_self_capture(x, y, player) or self.is_position_repeat(x, y, player)
         return True 
     
     def update_strings(self, x, y, player):
@@ -118,4 +124,29 @@ class Board:
                     self.grid[y][x] = 0
                     return True
         self.grid[y][x] = 0
+        return False
+
+    def is_position_repeat(self, x, y, player):
+        if len(self.pos_history) > 1:
+            self.grid[y][x] = player
+            black_copy = self.black_strings.copy()
+            white_copy = self.white_strings.copy()
+            if player == 2:
+                black_copy = self.update_strings(x, y, player)
+                for i in range(len(white_copy)-1, -1, -1):
+                    if self.is_string_captured(white_copy[i], 3-player):
+                        white_copy.pop(i)
+            else:
+                white_copy = self.update_strings(x, y, player)
+                for i in range(len(black_copy)-1, -1, -1):
+                    if self.is_string_captured(black_copy[i], 3-player):
+                        black_copy.pop(i)
+            if sorted([point for string in black_copy for point in string]) != sorted([point for string in self.pos_history[0][0] for point in string]):
+                self.grid[y][x] = 0
+                return False
+            if sorted([point for string in white_copy for point in string]) != sorted([point for string in self.pos_history[0][1] for point in string]):
+                self.grid[y][x] = 0
+                return False
+            self.grid[y][x] = 0
+            return True
         return False
