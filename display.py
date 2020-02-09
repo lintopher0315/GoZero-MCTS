@@ -9,11 +9,11 @@ class BetaGo(App):
     images = []
 
     def __init__(self, *args):
-        super(BetaGo, self).__init__(*args)
+        super(BetaGo, self).__init__(*args, static_file_path = {'res':'./res/'})
 
     def main(self):
         container = gui.Container(width=441, height=441)
-        container.style['background-image'] = "url('https://senseis.xmp.net/diagrams/29/ad217a381dbb8bc75d8420f6aec40af5.png')"
+        container.style['background-image'] = "url('/res:board.png')"
         for i in range(19):
             for j in range(19):
                 self.piece = gui.Container(width=22, height=22)
@@ -37,9 +37,9 @@ class BetaGo(App):
             for i in range(19):
                 for j in range(19):
                     if self.board.grid[i][j] == 2:
-                        self.images[j+i*19].style['background-image'] = "url('https://i.imgur.com/iW25PZP.png')"
+                        self.images[j+i*19].style['background-image'] = "url('/res:black_stone.png')"
                     elif self.board.grid[i][j] == 1:
-                        self.images[j+i*19].style['background-image'] = "url('https://i.imgur.com/IAU4S7D.png')"
+                        self.images[j+i*19].style['background-image'] = "url('/res:white_stone.png')"
                     else:
                         self.images[j+i*19].style['background-image'] = "none"
             self.player = 3 - self.player
