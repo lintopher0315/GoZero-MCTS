@@ -92,6 +92,105 @@ class Board:
                     stack.append([rem[0], rem[1]-1])
         return True
 
+    def get_score(self):
+        white_score = 0
+        black_score = 0
+        temp = numpy.copy(self.grid)
+        for i in range(19):
+            for j in range(19):
+                if temp[i][j] == 0:
+                    side = self.get_territory_color(j, i)
+                    stack = []
+                    visited = []
+                    stack.append([j, i])
+                    while len(stack) > 0:
+                        rem = stack.pop()
+                        visited.append(rem)
+                        temp[rem[1]][rem[0]] = side
+                        if rem[0]+1<19 and [rem[0]+1, rem[1]] not in visited:
+                            if temp[rem[1]][rem[0]+1] == 0:
+                                stack.append([rem[0]+1, rem[1]])
+                        if rem[1]+1<19 and [rem[0], rem[1]+1] not in visited:
+                            if temp[rem[1]+1][rem[0]] == 0:
+                                stack.append([rem[0], rem[1]+1])
+                        if rem[0]-1>=0 and [rem[0]-1, rem[1]] not in visited:
+                            if temp[rem[1]][rem[0]-1] == 0:
+                                stack.append([rem[0]-1, rem[1]])
+                        if rem[1]-1>=0 and [rem[0], rem[1]-1] not in visited:
+                            if temp[rem[1]-1][rem[0]] == 0:
+                                stack.append([rem[0], rem[1]-1])
+                    if side == 4:
+                        white_score += 1
+                    elif side == 5:
+                        black_score += 1
+                elif temp[i][j] == 1 or temp[i][j] == 4:
+                    white_score += 1
+                elif temp[i][j] == 2 or temp[i][j] == 5:
+                    black_score += 1
+        return [white_score, black_score]
+
+    def get_territory_color(self, x, y):
+        stack = []
+        visited = []
+        side = None
+        stack.append([x, y])
+        while len(stack) > 0:
+            rem = stack.pop()
+            visited.append(rem)
+            if rem[0]+1<19 and [rem[0]+1, rem[1]] not in visited:
+                if self.grid[rem[1]][rem[0]+1] == 0:
+                    stack.append([rem[0]+1, rem[1]])
+                elif self.grid[rem[1]][rem[0]+1] == 1:
+                    if side is None:
+                        side = 4
+                    elif side is not None and side != 4:
+                        return 3
+                elif self.grid[rem[1]][rem[0]+1] == 2:
+                    if side is None:
+                        side = 5
+                    elif side is not None and side != 5:
+                        return 3
+            if rem[1]+1<19 and [rem[0], rem[1]+1] not in visited:
+                if self.grid[rem[1]+1][rem[0]] == 0:
+                    stack.append([rem[0], rem[1]+1])
+                elif self.grid[rem[1]+1][rem[0]] == 1:
+                    if side is None:
+                        side = 4
+                    elif side is not None and side != 4:
+                        return 3
+                elif self.grid[rem[1]+1][rem[0]] == 2:
+                    if side is None:
+                        side = 5
+                    elif side is not None and side != 5:
+                        return 3
+            if rem[0]-1>=0 and [rem[0]-1, rem[1]] not in visited:
+                if self.grid[rem[1]][rem[0]-1] == 0:
+                    stack.append([rem[0]-1, rem[1]])
+                elif self.grid[rem[1]][rem[0]-1] == 1:
+                    if side is None:
+                        side = 4
+                    elif side is not None and side != 4:
+                        return 3
+                elif self.grid[rem[1]][rem[0]-1] == 2:
+                    if side is None:
+                        side = 5
+                    elif side is not None and side != 5:
+                        return 3
+            if rem[1]-1>=0 and [rem[0], rem[1]-1] not in visited:
+                if self.grid[rem[1]-1][rem[0]] == 0:
+                    stack.append([rem[0], rem[1]-1])
+                elif self.grid[rem[1]-1][rem[0]] == 1:
+                    if side is None:
+                        side = 4
+                    elif side is not None and side != 4:
+                        return 3
+                elif self.grid[rem[1]-1][rem[0]] == 2:
+                    if side is None:
+                        side = 5
+                    elif side is not None and side != 5:
+                        return 3
+        return side
+            
     def remove_string(self, index, player):
         coords = None
         if player == 2:

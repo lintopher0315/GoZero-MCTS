@@ -9,11 +9,12 @@ class BetaGo(App):
     images = []
 
     def __init__(self, *args):
-        super(BetaGo, self).__init__(*args, static_file_path = {'res':'./res/'})
+        super(BetaGo, self).__init__(*args, static_file_path = {'my_res':'./res/'})
 
     def main(self):
+        screen = gui.Container(width=500, height=700)
         container = gui.Container(width=441, height=441)
-        container.style['background-image'] = "url('/res:board.png')"
+        container.style['background-image'] = "url('/my_res:board.png')"
         for i in range(19):
             for j in range(19):
                 self.piece = gui.Container(width=22, height=22)
@@ -27,7 +28,11 @@ class BetaGo(App):
                 self.images.append(self.piece)
                 container.append(self.piece)
         container.onmousedown.do(self.on_place_piece)
-        return container
+        pass_button = gui.Button('Pass')
+        pass_button.onclick.do(self.pass_turn)
+        screen.append(container)
+        screen.append(pass_button)
+        return screen
     
     def on_place_piece(self, widget, x, y):
         new_pos = self.calculate_closest_point(int(x), int(y))
@@ -37,9 +42,9 @@ class BetaGo(App):
             for i in range(19):
                 for j in range(19):
                     if self.board.grid[i][j] == 2:
-                        self.images[j+i*19].style['background-image'] = "url('/res:black_stone.png')"
+                        self.images[j+i*19].style['background-image'] = "url('/my_res:black_stone.png')"
                     elif self.board.grid[i][j] == 1:
-                        self.images[j+i*19].style['background-image'] = "url('/res:white_stone.png')"
+                        self.images[j+i*19].style['background-image'] = "url('/my_res:white_stone.png')"
                     else:
                         self.images[j+i*19].style['background-image'] = "none"
             self.player = 3 - self.player
@@ -70,5 +75,8 @@ class BetaGo(App):
             return [low_x+2, low_y+2]
         else:
             return [high_x+2, low_y+2]
+
+    def pass_turn(self, widget):
+        self.player = 3 - self.player
         
 start(BetaGo)
