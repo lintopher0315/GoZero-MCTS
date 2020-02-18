@@ -144,6 +144,7 @@ class BetaGo(App):
     def pass_turn(self, widget):
         self.player = 3 - self.player
         self.passes += 1
+        self.board.passes = 0
         if self.passes == 2:
             self.in_game = False
             score = self.board.get_score()

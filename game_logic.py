@@ -7,12 +7,14 @@ class Board:
     black_strings = []
     white_strings = []
     pos_history = []
+    passes = 0
 
     def clear_board(self):
         self.grid = numpy.zeros((19, 19))
         self.black_strings = []
         self.white_strings = []
         self.pos_history = []
+        self.passes = 0
 
     def update_board(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19 and (player == 1 or player == 2):
