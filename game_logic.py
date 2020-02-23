@@ -36,6 +36,7 @@ class Board:
             self.pos_history.append([self.black_strings.copy(), self.white_strings.copy()])
             if len(self.pos_history) > 2:
                 self.pos_history.pop(0)
+            print(self.has_neutral_territory())
     
     def invalid_inter(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19:
@@ -136,6 +137,76 @@ class Board:
                 elif temp[i][j] == 2 or temp[i][j] == 5:
                     black_score += 1
         return [white_score, black_score]
+
+    def has_neutral_territory(self):
+        board = self.grid.copy()
+        for i in range(19):
+            for j in range(19):
+                if board[i][j] == 0:
+                    stack = []
+                    visited = []
+                    side = None
+                    stack.append([j, i])
+                    while len(stack) > 0:
+                        rem = stack.pop()
+                        visited.append(rem)
+                        if rem[0]+1<19 and [rem[0]+1, rem[1]] not in visited:
+                            if board[rem[1]][rem[0]+1] == 0:
+                                stack.append([rem[0]+1, rem[1]])
+                                board[rem[1]][rem[0]+1] = 3
+                            elif board[rem[1]][rem[0]+1] == 1:
+                                if side is None:
+                                    side = 4
+                                elif side is not None and side != 4:
+                                    return True
+                            elif board[rem[1]][rem[0]+1] == 2:
+                                if side is None:
+                                    side = 5
+                                elif side is not None and side != 5:
+                                    return True
+                        if rem[1]+1<19 and [rem[0], rem[1]+1] not in visited:
+                            if board[rem[1]+1][rem[0]] == 0:
+                                stack.append([rem[0], rem[1]+1])
+                                board[rem[1]+1][rem[0]] = 3
+                            elif board[rem[1]+1][rem[0]] == 1:
+                                if side is None:
+                                    side = 4
+                                elif side is not None and side != 4:
+                                    return True
+                            elif board[rem[1]+1][rem[0]] == 2:
+                                if side is None:
+                                    side = 5
+                                elif side is not None and side != 5:
+                                    return True
+                        if rem[0]-1>=0 and [rem[0]-1, rem[1]] not in visited:
+                            if board[rem[1]][rem[0]-1] == 0:
+                                stack.append([rem[0]-1, rem[1]])
+                                board[rem[1]][rem[0]-1] = 3
+                            elif board[rem[1]][rem[0]-1] == 1:
+                                if side is None:
+                                    side = 4
+                                elif side is not None and side != 4:
+                                    return True
+                            elif board[rem[1]][rem[0]-1] == 2:
+                                if side is None:
+                                    side = 5
+                                elif side is not None and side != 5:
+                                    return True
+                        if rem[1]-1>=0 and [rem[0], rem[1]-1] not in visited:
+                            if board[rem[1]-1][rem[0]] == 0:
+                                stack.append([rem[0], rem[1]-1])
+                                board[rem[1]-1][rem[0]] = 3
+                            elif board[rem[1]-1][rem[0]] == 1:
+                                if side is None:
+                                    side = 4
+                                elif side is not None and side != 4:
+                                    return True
+                            elif board[rem[1]-1][rem[0]] == 2:
+                                if side is None:
+                                    side = 5
+                                elif side is not None and side != 5:
+                                    return True
+        return False
 
     def get_territory_color(self, x, y):
         stack = []
