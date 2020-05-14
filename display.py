@@ -1,10 +1,13 @@
 import remi.gui as gui
+import copy
 from remi import start, App
 from game_logic import Board
+from MCTS import MCTS
 
 class BetaGo(App):
 
     board = Board()
+    ai = MCTS()
     player = 2
     images = []
     passes = 0
@@ -97,22 +100,31 @@ class BetaGo(App):
 
         return screen
     
-    def on_place_piece(self, widget, x, y):
+    def update_view(self):
+        for i in range(19):
+            for j in range(19):
+                if self.board.grid[i][j] == 2:
+                    self.images[j+i*19].style['background-image'] = "url('/my_res:black_stone.png')"
+                elif self.board.grid[i][j] == 1:
+                    self.images[j+i*19].style['background-image'] = "url('/my_res:white_stone.png')"
+                else:
+                    self.images[j+i*19].style['background-image'] = "none"
+
+    def on_place_piece(self, widget, x, y): # make sure you cant click on board when MCTS is thinking
         if self.in_game:
             new_pos = self.calculate_closest_point(int(x), int(y))
 
             if not self.board.invalid_inter((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player):
                 self.board.update_board((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player)
-                for i in range(19):
-                    for j in range(19):
-                        if self.board.grid[i][j] == 2:
-                            self.images[j+i*19].style['background-image'] = "url('/my_res:black_stone.png')"
-                        elif self.board.grid[i][j] == 1:
-                            self.images[j+i*19].style['background-image'] = "url('/my_res:white_stone.png')"
-                        else:
-                            self.images[j+i*19].style['background-image'] = "none"
+                self.update_view()
                 self.player = 3 - self.player
             self.passes = 0
+
+            b = self.ai.find_next_move(copy.deepcopy(self.board), self.player)
+            self.board = copy.deepcopy(b)
+            self.update_view()
+
+            self.player = 3 - self.player
 
     def calculate_closest_point(self, x, y):
         coord_x = x - 14

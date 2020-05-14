@@ -3,11 +3,12 @@ from collections import Counter
 
 class Board:
 
-    grid = numpy.zeros((19, 19))
-    black_strings = []
-    white_strings = []
-    pos_history = []
-    passes = 0
+    def __init__(self):
+        self.grid = numpy.zeros((19, 19))
+        self.black_strings = []
+        self.white_strings = []
+        self.pos_history = []
+        self.passes = 0
 
     def clear_board(self):
         self.grid = numpy.zeros((19, 19))
@@ -36,7 +37,7 @@ class Board:
             self.pos_history.append([self.black_strings.copy(), self.white_strings.copy()])
             if len(self.pos_history) > 2:
                 self.pos_history.pop(0)
-            print(self.has_neutral_territory())
+            #print(self.has_neutral_territory())
     
     def invalid_inter(self, x, y, player):
         if x >= 0 and x < 19 and y >= 0 and y < 19:

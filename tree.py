@@ -25,6 +25,8 @@ class Node:
             if self.children[i].score > val:
                 val = self.children[i].score
                 index = i
+        if val == 0 and index == 0:
+            return random.choice(self.children)
         return self.children[index]
 
     def ucb_value(self, parent_visit, win_score, visit):
@@ -40,6 +42,8 @@ class Node:
             if val > max_val:
                 max_val = val
                 index = i
+        if (max_val == 0 or max_val == sys.maxsize) and index == 0:
+            return random.choice(self.children)
         return self.children[index]
     
 class Tree:
