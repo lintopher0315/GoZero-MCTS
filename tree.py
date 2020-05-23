@@ -48,5 +48,8 @@ class Node:
     
 class Tree:
 
-    def __init__(self, board, player):
-        self.root = Node(board, None, player)
+    def __init__(self, board=None, player=None):
+        if board is None and player is None:
+            self.root = None
+        else:
+            self.root = Node(board, None, player)
