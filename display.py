@@ -156,12 +156,17 @@ class BetaGo(App):
     def pass_turn(self, widget):
         self.player = 3 - self.player
         self.passes += 1
-        self.board.passes = 0
+        self.board.passes += 1
         if self.passes == 2:
             self.in_game = False
             score = self.board.get_score()
             self.white_score.text = str(score[0])
             self.black_score.text = str(score[1])
+        b = self.ai.find_next_move(copy.deepcopy(self.board), self.player)
+        self.board = copy.deepcopy(b)
+        self.update_view()
+
+        self.player = 3 - self.player
 
     def new_game(self, widget):
         self.board.clear_board()

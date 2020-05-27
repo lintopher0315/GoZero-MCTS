@@ -1,32 +1,31 @@
 import time
 import copy
 import random
-import multiprocessing
-from multiprocessing.managers import BaseManager
+import time
+from queue import Empty
 from tree import Tree
 from tree import Node
 
 class MCTS:
 
-    def __init__(self):
-        self.root = None    # maybe dont need these
-        self.lock = multiprocessing.Lock()
+    def find_next_move(self, board, player):
+        tree = Tree(board, player)
+        root = tree.root
+        num_sim = 0
 
-    def tree_process(self, t, id):
         timeout = time.time()+20
 
         while True:
             if time.time() > timeout:
                 break
 
-            end_node = self.select(t.root)
+            end_node = self.select(root)
 
             if end_node.board.passes < 2:
-                with self.lock:
-                    if (len(end_node.children) == 0):
-                        #print("expand")
-                        self.expand(end_node)
-                    #print("length: " + str(len(end_node.children)))
+                if (len(end_node.children) == 0):
+                    #print("expand")
+                    self.expand(end_node)
+                #print("length: " + str(len(end_node.children)))
 
             explore_node = end_node
             if len(explore_node.children) > 0:
@@ -34,36 +33,11 @@ class MCTS:
 
             playout = self.simulate(explore_node)
             #print("playout: " + str(playout))
-            with self.lock:
-                self.backpropagate(explore_node, playout)
-            print("Process: "+str(id))
+            self.backpropagate(explore_node, playout)
+            num_sim += 1
 
-    def find_next_move(self, board, player):
-        tree = Tree(board, player)
-        self.root = tree.root
-        self.num_sim = 0
-
-        #q = multiprocessing.Queue()
-        #q.put(self.root)
-
-        BaseManager.register('Tree', Tree)
-        manager = BaseManager()
-        manager.start()
-        t = manager.Tree()
-        t.root = self.root
-        print(self.root)
-
-        processes = []
-        for i in range(10):
-            p = multiprocessing.Process(target=self.tree_process, args=(t,i,))
-            processes.append(p)
-            p.start()
-        
-        for p in processes:
-            p.join()
-
-        self.root = t.root
-        return self.root.get_highest_child().board
+        print("Simulations: "+str(num_sim))
+        return root.get_highest_child().board
 
     def select(self, node):
         selected = node
@@ -84,26 +58,42 @@ class MCTS:
         n = Node(new_board, node, 3-node.player)
         node.add_child(n)
 
-    def simulate(self, node): #instead of adding all possible moves for each step, only add half
+    def pre_result(self, score):
+        if score[0] > score[1]+3:
+            return 1
+        elif score[1] > score[0]+3:
+            return 2
+        else:
+            return 3
+
+    def simulate(self, node):
         count = 0
-        curr_node = node.board
+        curr_node = copy.deepcopy(node.board)
         p = node.player
-        #print(curr_node.has_neutral_territory());
+
+        result = self.pre_result(curr_node.get_score())
+        if result != 3:
+            return result
+
         while count < 100 and (curr_node.has_neutral_territory() or len(curr_node.pos_history) < 2):
+            if count%20 == 0:
+                result = self.pre_result(curr_node.get_score())
+                if result != 3:
+                    return result
+
             possible_moves = []
+            
             for i in range(19):
                 for j in range(19):
-                    if len(possible_moves)==0 or random.random()>0.5:
+                    if len(possible_moves)==0 or random.random()>0.75:
                         if not curr_node.invalid_inter(j, i, p):
-                            #print(j, i)
                             possible_moves.append([j, i])
+
             if len(possible_moves) == 0:
                 break
             count += 1
             rand_move = random.choice(possible_moves)
-            new_board = copy.deepcopy(curr_node)
-            new_board.update_board(rand_move[0], rand_move[1], p)
-            curr_node = new_board
+            curr_node.update_board(rand_move[0], rand_move[1], p)
             p = 3-p
             #curr_node = Node(new_board, curr_node, 3-curr_node.player)
         result = curr_node.get_score()
