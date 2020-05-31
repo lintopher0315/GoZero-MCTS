@@ -14,11 +14,15 @@ class BetaGo(App):
     in_game = True
     white_score = gui.Label("")
     black_score = gui.Label("")
+    move_num = 1
 
     def __init__(self, *args):
         super(BetaGo, self).__init__(*args, static_file_path = {'my_res':'./res/'})
 
     def main(self):
+        full = gui.Container(width=700, height=700, layout_orientation=gui.Container.LAYOUT_HORIZONTAL)
+        full.style['box-shadow'] = "none"
+
         screen = gui.Container(width=441, height=700)
         screen.style['box-shadow'] = "none"
 
@@ -93,12 +97,19 @@ class BetaGo(App):
         new_game_button = gui.Button('New Game')
         new_game_button.onclick.do(self.new_game)
 
+        self.list_view = gui.ListView(selectable=False, width=100, height=441)
+        self.list_view.style['border'] = "1px groove gray"
+        self.list_view.style['margin-top'] = '50px'
+        self.list_view.style['margin-left'] = '25px'
+
         screen.append(title_container)
         screen.append(container)
         screen.append(pass_button)
         screen.append(new_game_button)
 
-        return screen
+        full.append([screen, self.list_view])
+
+        return full
     
     def update_view(self):
         for i in range(19):
@@ -116,15 +127,25 @@ class BetaGo(App):
 
             if not self.board.invalid_inter((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player):
                 self.board.update_board((new_pos[0]-2)//23, (new_pos[1]-2)//23, self.player)
+                side = 'BW'
+                if self.player == 1:
+                    side = 'WB'
+                self.list_view.append(str(self.move_num)+'. '+side[0]+'['+chr((new_pos[0]-2)//23+97)+chr((new_pos[1]-2)//23+97)+']')
                 self.update_view()
                 self.player = 3 - self.player
-            self.passes = 0
+                self.passes = 0
+                self.move_num += 1
 
-            b = self.ai.find_next_move(copy.deepcopy(self.board), self.player)
-            self.board = copy.deepcopy(b)
-            self.update_view()
+                b = self.ai.find_next_move(copy.deepcopy(self.board), self.player)
+                for i in range(19):
+                    for j in range(19):
+                        if self.board.grid[i][j] != b.grid[i][j]:
+                            self.list_view.append(str(self.move_num)+'. '+side[1]+'['+chr(j+97)+chr(i+97)+']')
+                self.board = copy.deepcopy(b)
+                self.update_view()
+                self.move_num += 1
 
-            self.player = 3 - self.player
+                self.player = 3 - self.player
 
     def calculate_closest_point(self, x, y):
         coord_x = x - 14
@@ -177,5 +198,6 @@ class BetaGo(App):
         self.player = 2
         self.white_score.text = ""
         self.black_score.text = ""
+        self.move_num = 1
         
 start(BetaGo)
