@@ -137,10 +137,14 @@ class BetaGo(App):
                 self.move_num += 1
 
                 b = self.ai.find_next_move(copy.deepcopy(self.board), self.player)
+                coord = b.move_history[len(b.move_history)-1]
+                self.list_view.append(str(self.move_num)+'. '+side[1]+'['+chr(coord[0]+97)+chr(coord[1]+97)+']')
+                '''
                 for i in range(19):
                     for j in range(19):
                         if self.board.grid[i][j] != b.grid[i][j]:
                             self.list_view.append(str(self.move_num)+'. '+side[1]+'['+chr(j+97)+chr(i+97)+']')
+                '''
                 self.board = copy.deepcopy(b)
                 self.update_view()
                 self.move_num += 1
@@ -199,5 +203,6 @@ class BetaGo(App):
         self.white_score.text = ""
         self.black_score.text = ""
         self.move_num = 1
+        self.list_view.empty()
         
 start(BetaGo)

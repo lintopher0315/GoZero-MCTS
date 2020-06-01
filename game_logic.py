@@ -8,6 +8,7 @@ class Board:
         self.black_strings = []
         self.white_strings = []
         self.pos_history = []
+        self.move_history = []
         self.passes = 0
 
     def clear_board(self):
@@ -15,6 +16,7 @@ class Board:
         self.black_strings = []
         self.white_strings = []
         self.pos_history = []
+        self.move_history = []
         self.passes = 0
 
     def update_board(self, x, y, player):
@@ -35,8 +37,10 @@ class Board:
                         self.remove_string(i, 3-player)
 
             self.pos_history.append([self.black_strings.copy(), self.white_strings.copy()])
+            self.move_history.append([x, y])
             if len(self.pos_history) > 2:
                 self.pos_history.pop(0)
+                self.move_history.pop(0)
             #print(self.has_neutral_territory())
     
     def invalid_inter(self, x, y, player):

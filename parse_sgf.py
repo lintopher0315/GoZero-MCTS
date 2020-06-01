@@ -29,7 +29,8 @@ for i in ins:
         next_player = 2
     x = i[i.index('[')+1]
     y = i[i.index(']')-1]
-    board.grid[ord(y)-97][ord(x)-97] = player
+    #board.grid[ord(y)-97][ord(x)-97] = player
+    board.update_board(ord(x)-97, ord(y)-97, player)
 
 for i in range(19):
     for j in range(19):
@@ -42,12 +43,14 @@ if next_player == 1:
     move += "W["
 else:
     move += "B["
+coord = b.move_history[len(b.move_history)-1]
+move += chr(coord[0]+97)+chr(coord[1]+97)+']'
 
 print("NEW BOARD\n~~~~~~~~")
 for i in range(19):
     for j in range(19):
-        if board.grid[i][j] != b.grid[i][j]:
-            move += chr(j+97)+chr(i+97)+']'
+        #if board.grid[i][j] != b.grid[i][j]:
+            #move += chr(j+97)+chr(i+97)+']'
         print(b.grid[i][j], end=' ')
     print()
 print('\n'+move)
